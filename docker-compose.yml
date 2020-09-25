@@ -1,0 +1,40 @@
+version: '3.4'
+services:
+  taskserver: 
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
+    stdin_open: true  
+    image: taskserver  
+    container_name: taskserver
+    restart: unless-stopped
+    ports: 
+      - '4000:4000'
+    volumes:
+      - /app/node_modules
+      - .:/app
+    env_file: 
+      - ./config.env
+    links:
+      - "mongo"
+  mongo:
+    image: mongo:4.2.5
+    container_name: mongo
+    env_file: 
+      - ./config.env  
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: secret
+      MONGO_INITDB_DATABASE: $MONGO_INITDB_DATABASE
+      MONGO_USERNAME: $MONGO_USERNAME
+      MONGO_PASSWORD: $MONGO_PASSWORD
+
+    ports:
+      - "27017:27017"  
+    volumes:
+      - ./mongodata:/data/db
+      - ./mongo-init.sh:/docker-entrypoint-initdb.d/mongo-init.sh:ro
+volumes:
+  mongodata:
+
+      
